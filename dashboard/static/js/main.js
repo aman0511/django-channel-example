@@ -19,7 +19,7 @@ function onOpen (evt) {
 
 function onMessage (evt) {
   var data = JSON.parse(evt.data);
-
+   console.log(data)
   if (data.BTC) {
     $("span.bitcoin-price").html("$" + data.BTC)
     dataLineGraph.push({
@@ -153,7 +153,8 @@ function plotLineGraph() {
     .attr('class', 'dots');
 }
 
-$(".change-coin-js").click(function (e) {
+$("#change-coin-js").click(function (e) {
+    console.log("this get call")
   if ($(".wrapper-bitcoin").css("display") == "none") {
     $(".wrapper-bitcoin").css("display", "block");
     $(".wrapper-litecoin").css("display", "none");

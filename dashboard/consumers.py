@@ -1,39 +1,44 @@
-import json
-
-from channels import Group
-from channels.auth import channel_session_user
+from channels.generic.websocket import WebsocketConsumer, AsyncJsonWebsocketConsumer
 
 
-@channel_session_user
-def ws_connect(message):
-    Group('btc-price').add(message.reply_channel)
 
-    message.channel_session['coin-group'] = 'btc-price'
+# class CoinPriceConsumer(WebsocketConsumer):
+#     """ Coin Price Change Consumer """
+#
+#
+#     def connect(self):
+#         # print(self.scope)
+#         print("connection made")
+#         self.accept()
+#
+#     def disconnect(self, code):
+#         print("disconnect call")
+#
+#
+#     def receive(self, text_data=None, bytes_data=None):
+#         print("data recevie")
+#         print(text_data)
 
-    message.reply_channel.send({
-        'accept': True
-    })
+class CoinPriceConsumer(AsyncJsonWebsocketConsumer):
+    """ async web scoket consumer """
+    pass
 
+    async def connect(self):
+        await self.accept()
 
-@channel_session_user
-def ws_receive(message):
-    data = json.loads(message.content.get('text'))
+    async def disconnect(self, code):
+        pass
 
-    if data.get('coin') == 'litecoin':
-        Group('ltc-price').add(message.reply_channel)
-        Group('btc-price').discard(message.reply_channel)
+    async def receive(self, text_data=None, bytes_data=None, **kwargs):
+        await test(user=1, data=text_data)
+        print(text_data)
+        import json
+        await self.send(json.dumps({'user':"data send to the user"}))
+        await self.close()
 
-        message.channel_session['coin-group'] = 'ltc-price'
+async def test(user=None, data=None):
+    import time
+    print(user, data)
+    time.sleep(10)
+    return "test"
 
-    elif data.get('coin') == 'bitcoin':
-        Group('btc-price').add(message.reply_channel)
-        Group('ltc-price').discard(message.reply_channel)
-
-        message.channel_session['coin-group'] = 'btc-price'
-
-
-@channel_session_user
-def ws_disconnect(message):
-    user_group = message.channel_session['coin-group']
-
-    Group(user_group).discard(message.reply_channel)

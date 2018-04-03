@@ -25,14 +25,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '(0ejil(ukh-ynusf^$nfpjhn-6wp20&jxu=-=kt@f4+m(qn64m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool, default=False)
+DEBUG = config('DEBUG', cast=bool, default=True)
 
-ALLOWED_HOSTS = ['protected-forest-75949.herokuapp.com', 'coinpricemonitor.labcodes.com.br']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,13 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third party
-    'channels',
+
 
     # Our Apps
     'dashboard',
 ]
 
 MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,6 +61,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'coinpricemonitor.urls'
+ASGI_APPLICATION = 'coinpricemonitor.routing.application'
 
 TEMPLATES = [
     {
@@ -134,12 +137,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [os.environ.get('REDIS_URL', config('REDISCLOUD_URL', default='redis://localhost:6379'))],
             'capacity': 100,
-        },
-        'ROUTING': 'coinpricemonitor.routing.channel_routing',
+        }
     },
 }
 
